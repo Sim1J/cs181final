@@ -1,0 +1,190 @@
+---
+title: "Final Project: Article"
+subtitle: Data Analytics and Visualization, Fall 2024
+author: Otis Golden and Simone Johnson
+institute: Harvey Mudd College
+date: December 9th 2024
+format: 
+  html:
+    self-contained: true
+    code-fold: true
+---
+
+# US Criminal Justice System - FBI UCR Program
+
+The topic that we chose to study in this report was the US criminal justice system, particulatly the reported distribution of arrests across the United States. In particular, we looked at how the arrest rate for possession of marijuana varied for  different reported races as well as _______. These topics are important because they shine light on significant social issues in the justice system and display that there may be racial disparities in the US incarcaration rates. 
+
+The arrest data is from the Federal Bureau of Investigation's (FBI) Uniform Crime Reporting (UCR) Program in 2021, which allows police agencies to report their arrest information every month. This form contains information on the number of arrests for each offense and demographic information from that agency. This dataset, thus, will give us the demographic information that we need to be able to analyze if there are any disparities or trends amongst the groups.
+
+Additionally, the population data comes from the  U.S. Census Bureau and contains breakdowns by state of the total population and the population by similar race categories to that of the UCR reporting.
+
+```{python}
+
+from lets_plot import *
+import geopandas as gpd
+from lets_plot.geo_data import *
+import numpy as np
+import pandas as pd
+
+LetsPlot.setup_html()
+
+```
+
+
+```{python}
+
+data = pd.read_csv("38795-0001-Data.tsv", sep='\t')
+demodata = data[data["AREO"]==1]
+
+
+```
+
+
+## Marijuana Possession
+
+Racial biases in the US criminal justice system have been documented over the last several decades, and one area that these biases are particularly present are in cannabis possession arrests, often referred to as part of "the War on Drugs". In this section, we wanted to present the FBI's compiled marijuana possession arrest data for the different races included in their breakdown ("White", "Black", "Asian", and "Indian"). 
+
+
+```{python}
+
+demodataWeed = demodata[(demodata["OFFENSE"] == 182) | (demodata["OFFENSE"] == 187)]
+
+state_pop = pd.read_csv("popstate.csv")
+
+state_pop["STNAME"] = [x[:6] for x in state_pop['Description']]
+
+state_pop2019 = state_pop[state_pop["Year"] == 2019]
+
+count_demographics_state = demodataWeed.groupby("STNAME", as_index=False)["OFFENSE"].count()
+
+p1 = count_demographics_state
+
+for x in ["AA", "AB", "AW", "AI", "JA", "JB", "JW", "JI"]:
+  subset = demodataWeed[demodataWeed[x] < 20]
+  p2 = subset.groupby("STNAME", as_index=False)[x].sum()
+  p1 = pd.merge(p1, p2, on="STNAME", how="left")
+
+
+observDataCountsWeed = pd.merge(p1, state_pop2019, on="STNAME", how="left")
+
+observDataCountsWeed["state"] = observDataCountsWeed["STNAME"]
+
+observDataCountsWeed.to_csv("observDataCountsWeed.csv")
+
+```
+
+Below is an interactive side-by-side map of arrests per 100,000 people of the selected demographic. 
+
+
+```{ojs}
+
+viewof demographic1 = Inputs.select(
+  new Map([
+    ["Adult Asian", "AA"],
+    ["Adult Black", "AB"],
+    ["Adult White", "AW"],
+    ["Adult Indian", "AI"]
+  ]),
+  { label: "Demographic 1" }
+)
+
+viewof demographic2 = Inputs.select(
+  new Map([
+    ["Adult Asian", "AA"],
+    ["Adult Black", "AB"],
+    ["Adult White", "AW"],
+    ["Adult Indian", "AI"]
+  ]),
+  { label: "Demographic 2" }
+)
+
+```
+
+
+<div style="display: flex">${plot1()} ${plot2()}</div>
+
+
+
+```{ojs}
+
+function plot1(){
+return addTooltips( // Add tooltips
+  Plot.plot({
+    projection: "albers-usa",
+    width: width/2,
+    marks: [
+      Plot.geo(states, {
+        fill: (d) => DemographicCountMap1.get(d.properties.name),
+        title: (d) =>
+          `${d.properties.name} \n ${
+            DemographicCountMap1.get(d.properties.name) // Custom tooltip text
+          }`
+      })
+    ],
+    color: {
+      scheme: "Blues",
+      unknown: "#ddd",
+      type: "linear",
+      label: "Arrests per 100,000 individuals", // Update legend label
+      legend: true,
+      percent: false, // Convert value to a percent (from a proportion)
+      domain: [0, 1000] // Update the value domain to span 0 to 100% access
+    }
+  })
+)}
+
+
+function plot2(){
+return addTooltips( // Add tooltips
+  Plot.plot({
+    projection: "albers-usa",
+    width: width/2,
+    marks: [
+      Plot.geo(states, {
+        fill: (d) => DemographicCountMap2.get(d.properties.name),
+        title: (d) =>
+          `${d.properties.name} \n ${
+            DemographicCountMap2.get(d.properties.name) // Custom tooltip text
+          }`
+      })
+    ],
+    color: {
+      scheme: "Blues",
+      unknown: "#ddd",
+      type: "linear",
+      label: "Arrests per 100,000 individuals", // Update legend label
+      legend: true,
+      percent: false, // Convert value to a percent (from a proportion)
+      domain: [0, 1000] // Update the value domain to span 0 to 100% access
+    }
+  })
+)}
+
+DemographicCountMap1 = new Map(demographicCounts.map(({Description, ...rest}) => [Description, rest[demographic1]/rest[simpleMap.get(demographic1)]*100000]))
+DemographicCountMap2 = new Map(demographicCounts.map(({Description, ...rest}) => [Description, rest[demographic2]/rest[simpleMap.get(demographic2)]*100000]))
+simpleMap = new Map([
+    ["AA", "Asian Alone"],
+    ["AB", "Black Alone"],
+    ["AW", "White Alone"],
+    ["AI", "American Indian or Alaskan Native"]
+  ])
+```
+
+```{ojs}
+
+import {addTooltips} from "@mkfreeman/plot-tooltip"
+import {us} from "@observablehq/us-geographic-data"
+states = topojson.feature(us, us.objects.states)
+demographicCounts = FileAttachment("observDataCountsWeed.csv").csv()
+
+```
+
+
+When looking at this, we see that there is a clear disparity in arrest rates amoung the different races -- particularly between Black people and white people. In some states, Black individuals are arrested for marijuana possession at a rate almost 10 times higher than white individuals, such as in Utah, Idaho, and Wyoming. This supports the claim from before that there is a racial disparity in the arrest rates because the data is normalized to each demographic's population with eaach state, showing arrests per 100,000 individuals within each group.
+
+This is an important issue because marijuana possession arrests can have life changing impacts such as causing difficulty finding jobs, losing public health care, or even eviction from public housing. Thus, because there is this disparity in the arrest rates, Black communities face these consequences at a higher rate.
+
+We can see when comparing marijuana possession arrest rates for Black individuals to white individuals that the highest disparities are in states that haven't legalized or decriminalized marijuana. However, another insight we can gain from this is that there is still a disparity present even in states that have legalized and decriminalized marijuana, indicating that in order to fix the racial disparities in arrest rates for marijuana possession, more than just legalization is required.
+
+## 
+
