@@ -73,7 +73,7 @@ observDataCountsWeed.to_csv("observDataCountsWeed.csv")
 
 ```
 
-Below is an interactive side-by-side map of arrests per 100,000 people of the selected demographic. 
+Below is an interactive side-by-side map of arrests per 100,000 people of the selected demographic. This allows you to see a direct comparison of the rate of arrest between the different reported races.
 
 
 ```{ojs}

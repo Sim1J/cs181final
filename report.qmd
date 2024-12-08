@@ -16,9 +16,11 @@ The original source of the data for this project is Federal Bureau of Investigat
 
 An additional dataset we inclluded was the US states population breakdown, including information about race. This was needed to fairly compare the rates of marijuana arrest by race. Thiss data allowed us to normalize the arrest counts against the population size of each racial group studied within each state. Without this, we would have been simplpy comparing the raw counts of arrests based on race, and would not have been accounting for the difference in the population size of each group which would probably create misleading visualizations and conclusions
 
-One common data processing decision was excluding the n/a or no information given cases. We did this initially by filtering out cases where there was no race, ethnicity, or sex information filed and then further when looking at a specific offense 
+One common data processing decision was excluding the n/a or no information given cases. We did this initially by filtering out cases where there was no race, ethnicity, or sex information filed and then further when looking at a specific offense we also did not count where the demographic information was 99998 or 99999 which was used to indicate a null or not applicable cell. When we lacked information for a state, we simply decided to create a color for a state that didn't have information rather than reporting 0 for that state.
 
 # Visualization Choices
+
+
 
 # Alignment with Goals
 
