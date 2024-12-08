@@ -18,10 +18,16 @@ An additional dataset we inclluded was the US states population breakdown, inclu
 
 One common data processing decision was excluding the n/a or no information given cases. We did this initially by filtering out cases where there was no race, ethnicity, or sex information filed and then further when looking at a specific offense we also did not count where the demographic information was 99998 or 99999 which was used to indicate a null or not applicable cell. When we lacked information for a state, we simply decided to create a color for a state that didn't have information rather than reporting 0 for that state.
 
+Additionally we perfomed joins on our dataset for instance joining with the US population break down dataset, as well as multiple groupings by max, count, normalized sum, etc. 
+
 # Visualization Choices
 
+We decided to go for a variety of visualization techniues to better retain the viewer and to enrich the expressivness of our article. The interactive map visualization was chosen to put into context the difference in Marijuana arrest data by race and by state. The side-by-side showing allows for a quick comparison between two different races.
 
+Additionally since we were dealing with state and crime categorical data we decided to go with a pie chart and a circular bar chart to better show count. We chose the circular bar chart over the straight bar chart as to proided an easier way to compare amoungst the same group, and to fit all 50 states without overlap. The facted pie chart allows for quick comparison of the crime data across races.
 
 # Alignment with Goals
 
+The goal of this article was to be able to look at important issues regarding crime and biased arrest rates. Through our visualizations we have shown a clear racial and state bias for crimes like Drug Abbuse and DUI. 
 # Statistical Models and Techniques
+We Used A Decision Tree Classifier to determine if there was some form of bias between racial distribution and the type of arrests, and determine that given a percentage of a certain we can determine what the offense they were arrested for 0.6 of the times.

@@ -12,7 +12,7 @@ format:
 
 # US Criminal Justice System - FBI UCR Program
 
-The topic that we chose to study in this report was the US criminal justice system, particulatly the reported distribution of arrests across the United States. In particular, we looked at how the arrest rate for possession of marijuana varied for  different reported races as well as _______. These topics are important because they shine light on significant social issues in the justice system and display that there may be racial disparities in the US incarcaration rates. 
+The topic that we chose to study in this report was the US criminal justice system, particulatly the reported distribution of arrests across the United States. In particular, we looked at how the arrest rate for possession of marijuana varied for  different reported races as well as the overall crime distribution per state. These topics are important because they shine light on significant social issues in the justice system and display that there may be racial disparities in the US incarcaration rates. We can furthmore see if those race disparities have further confirmation at the state level.
 
 The arrest data is from the Federal Bureau of Investigation's (FBI) Uniform Crime Reporting (UCR) Program in 2021, which allows police agencies to report their arrest information every month. This form contains information on the number of arrests for each offense and demographic information from that agency. This dataset, thus, will give us the demographic information that we need to be able to analyze if there are any disparities or trends amongst the groups.
 
@@ -186,5 +186,304 @@ This is an important issue because marijuana possession arrests can have life ch
 
 We can see when comparing marijuana possession arrest rates for Black individuals to white individuals that the highest disparities are in states that haven't legalized or decriminalized marijuana. However, another insight we can gain from this is that there is still a disparity present even in states that have legalized and decriminalized marijuana, indicating that in order to fix the racial disparities in arrest rates for marijuana possession, more than just legalization is required.
 
-## 
+## CRIME TYPE DISTRIBUTION BY STATE
+
+Certain types of crime seem to have had a massive uptick in frequency across the United States. Specifically, it seems that the news reports a lot about rampant drug abuse and DUI charges, especially in the state of Washington. Therefore in this section of the report, we wanted to analyze the most prominent arrest offense per state and determine if there is any visible correlation between that and race demographics per that state.
+
+
+```{python}
+import pandas as pd
+import numpy as np
+from lets_plot import*
+LetsPlot.setup_html() 
+import matplotlib.pyplot as plt
+```
+
+```{python}
+data = pd.read_stata('crime_data.dta')
+state_crime = data[['STATE','OFFENSE']]
+state_crime['OFFENSE'] = pd.to_numeric(state_crime['OFFENSE'])
+state_crime['State'] = state_crime["STATE"].astype(str)
+
+offense_code_to_name = {
+    11:"Murder and Non-Negligent Manslaughter",
+    12:"Manslaughter by Negligence",
+    20:"Forcible Rape",
+    30:"Robbery",
+    40:"Aggravated Assault",
+    50:"Burglary - Breaking or Entering",
+    60:"Larceny - Theft (except motor vehicle)",
+    70:"Motor Vehicle Theft",
+    80:"Other Assaults",
+    90:"Arson",
+    100:"Forgery and Counterfeiting",
+    110:"Fraud",
+    120:"Embezzlement",
+    130:"Stolen property Buying, Receiving, Poss.",
+    140:"Vandalism",
+    150:"Weapons - Carrying, Possessing, etc.",
+    160:"Prostitution and Commercialized Vice Total",
+    161:"Prostitution and Commercialized Vice - Prostitution",
+    162:"Prostitution and Commercialized Vice - Assisting or Promoting Prostitution",
+    163:"Prostitution and Commercialized Vice - Purchasing Prostitution	",
+    170:"Sex Offenses (except forcible rape and prostitution)",
+    18:"Drug Abuse Violations (Total)",
+    180:"Sale/Manufacturing (Subtotal)",
+    181:"Opium and Cocaine, and their derivatives (Morphine, Heroin)",
+    182:"Marijuana",
+    183:"Synthetic Narcotics - Manufactured Narcotics which can cause true drug addiction (Demerol, Methadones)	",
+    184:"Other Dangerous Non-Narcotic Drugs (Barbiturates, Benzedrine)",
+    185:"Possession (Subtotal)",
+    186:"Opium and Cocaine, and their derivatives (Morphine, Heroin)",
+    187:"Marijuana",
+    188:"Synthetic Narcotics - Manufactured Narcotics which can cause true drug addiction (Demerol, Methadones)	",
+    189:"Other Dangerous Non-Narcotic Drugs (Barbiturates, Benzedrine)",
+    19:"Gambling (Total)",
+    191:"Bookmaking (Horse and Sport Book)",
+    192:"Number and Lottery",
+    193:"All Other Gambling",
+    200:"Offenses Against Family and Children",
+    210:"Driving Under the Influence",
+    220:"Liquor Laws",
+    230:"Drunkenness",
+    240:"Disorderly Conduct",
+    250:"Vagrancy",
+    260:"All Other Offenses (except traffic)",
+    270:"Suspicion",
+    280:"Curfew and Loitering Law Violations",
+    290:"Runaways",
+    301:"Human Trafficking - Commercial Sex Acts (300)",
+    302:"Human Trafficking - Involuntary Servitude (310)",
+    998: "N/A"
+}
+
+us_state_to_abbrev = {
+    "Alabama": "AL",
+    "Alaska": "AK",
+    "Arizona": "AZ",
+    "Arkansas": "AR",
+    "California": "CA",
+    "Colorado": "CO",
+    "Connecticut": "CT",
+    "Delaware": "DE",
+    "Florida": "FL",
+    "Georgia": "GA",
+    "Hawaii": "HI",
+    "Idaho": "ID",
+    "Illinois": "IL",
+    "Indiana": "IN",
+    "Iowa": "IA",
+    "Kansas": "KS",
+    "Kentucky": "KY",
+    "Louisiana": "LA",
+    "Maine": "ME",
+    "Maryland": "MD",
+    "Massachusetts": "MA",
+    "Michigan": "MI",
+    "Minnesota": "MN",
+    "Mississippi": "MS",
+    "Missouri": "MO",
+    "Montana": "MT",
+    "Nebraska": "NE",
+    "Nevada": "NV",
+    "New Hampshire": "NH",
+    "New Jersey": "NJ",
+    "New Mexico": "NM",
+    "New York": "NY",
+    "North Carolina": "NC",
+    "North Dakota": "ND",
+    "Ohio": "OH",
+    "Oklahoma": "OK",
+    "Oregon": "OR",
+    "Pennsylvania": "PA",
+    "Rhode Island": "RI",
+    "South Carolina": "SC",
+    "South Dakota": "SD",
+    "Tennessee": "TN",
+    "Texas": "TX",
+    "Utah": "UT",
+    "Vermont": "VT",
+    "Virginia": "VA",
+    "Washington": "WA",
+    "West Virginia": "WV",
+    "Wisconsin": "WI",
+    "Wyoming": "WY",
+    "District of Columbia": "DC",
+    "American Samoa": "AS",
+    "Guam": "GU",
+    "Northern Mariana Islands": "MP",
+    "Puerto Rico": "PR",
+    "United States Minor Outlying Islands": "UM",
+    "Virgin Islands, U.S.": "VI",
+    "Federal":"FD"
+}
+
+crimeTypePerState = state_crime.groupby(['STATE','OFFENSE']).size().sort_values(ascending = False).reset_index(name = 'max')
+crimeTypePerState = crimeTypePerState[crimeTypePerState["OFFENSE"] != 260]
+maxcrimeperstate = crimeTypePerState.groupby('STATE')['max'].idxmax().reset_index(name = "max")
+crimeTypePerState = crimeTypePerState.loc[maxcrimeperstate['max']]
+
+def codetoname(code):
+    return offense_code_to_name[code]
+
+def statetoabbr(state):
+    return  us_state_to_abbrev[state]
+
+crimeTypePerState['OFFENSE'] = crimeTypePerState['OFFENSE'].apply(codetoname)
+crimeTypePerState['STATE'] = crimeTypePerState["STATE"].apply(statetoabbr)
+
+crimeTypePerState.drop(crimeTypePerState.tail().index,inplace=True)
+
+def get_label_rotation(angle, offset):
+    # Rotation must be specified in degrees :(
+    rotation = np.rad2deg(angle + offset)
+    if angle <= np.pi:
+        alignment = "right"
+        rotation = rotation + 180
+    else: 
+        alignment = "left"
+    return rotation, alignment
+
+def add_labels(angles, values, labels, offset, ax):
+    
+    # This is the space between the end of the bar and the label
+    padding = 4
+    
+    # Iterate over angles, values, and labels, to add all of them.
+    for angle, value, label, in zip(angles, values, labels):
+        angle = angle
+        
+        # Obtain text rotation and alignment
+        rotation, alignment = get_label_rotation(angle, offset)
+
+        # And finally add the text
+        ax.text(
+            x=angle, 
+            y=value + padding, 
+            s=label, 
+            ha=alignment, 
+            va="center", 
+            rotation=rotation, 
+            rotation_mode="anchor"
+        ) 
+
+crimeTypePerState = (
+    crimeTypePerState
+    .groupby(["OFFENSE"])
+    .apply(lambda x: x.sort_values(["max"], ascending = False))
+    .reset_index(drop=True)
+)
+
+VALUES = crimeTypePerState["max"].values 
+LABELS = crimeTypePerState["STATE"].values
+GROUP = crimeTypePerState["OFFENSE"].values
+
+PAD = 3
+ANGLES_N = len(VALUES) + PAD * len(np.unique(GROUP))
+
+ANGLES = np.linspace(0, 2 * np.pi, num=ANGLES_N, endpoint=False)
+WIDTH = (2 * np.pi) / len(ANGLES)
+
+GROUPS_SIZE = [len(i[1]) for i in crimeTypePerState.groupby("OFFENSE")]
+
+OFFSET = np.pi / 2
+
+offset = 0
+IDXS = []
+for size in GROUPS_SIZE:
+    IDXS += list(range(offset + PAD, offset + size + PAD))
+    offset += size + PAD
+
+fig, ax = plt.subplots(figsize=(20, 10), subplot_kw={"projection": "polar"})
+
+ax.set_theta_offset(OFFSET)
+ax.set_ylim(-6000, 8000)
+ax.set_frame_on(False)
+ax.xaxis.grid(False)
+ax.yaxis.grid(False)
+ax.set_xticks([])
+ax.set_yticks([])
+
+GROUPS_SIZE = [len(i[1]) for i in crimeTypePerState.groupby("OFFENSE")]
+COLORS = [f"C{i}" for i, size in enumerate(GROUPS_SIZE) for _ in range(size)]
+
+# Add bars to represent ...
+ax.bar(
+    ANGLES[IDXS], VALUES, width=WIDTH, color=COLORS, 
+    edgecolor="white", linewidth=2
+)
+add_labels(ANGLES[IDXS], VALUES, LABELS, OFFSET, ax)
+
+offset = 0
+for group, size in zip(list(crimeTypePerState["OFFENSE"].unique()), GROUPS_SIZE):
+    # Add line below bars
+    x1 = np.linspace(ANGLES[offset + PAD], ANGLES[offset + size + PAD - 1], num=50)
+    ax.plot(x1, [-5] * 50, color="#333333")
+    
+    # Add text to indicate group
+    ax.text(
+        np.mean(x1), 5000, group, color="#333333", fontsize=8, 
+        fontweight="bold", ha="center", va="center"
+    )
+    
+    
+    offset += size + PAD
+```
+
+This visual immediately begs many questions and affirms a lot of the testaments across the US about DUI and drug abuse offenses. We can see that the major categories of offenses are DUI, Assault, Drug Abuse, Disorderly Conduct, and Vandalism. So the ones discussed before are that there is undisputedly a problem with DUI and Drug abuse in the United States. There is an interesting outlier here in both Wisconsin and Washington DC. My speculation about Washington DC is that since this data was collected in 2021, the most arrested offense being vandalism most likely has some connection to the Jan 6th Riots. Especially since the number of arrests is visibly negligible. We see an odd spike in drug abuse violations in Texas, which I initially thought was due to its high population; however, we don't see a similar quantity for California, which is the most populated state in America.
+
+Furthermore, I would like to look at race distributions and the crime that they are arrested for, to see if we can connect race and the crime most likely to be arrested for, in hopes of examining some institutional bias.
+
+```{python}
+pop_ethnicity = pd.read_csv('raw_data.csv')
+pop_ethnicity = pop_ethnicity.drop(pop_ethnicity.index[0])
+pop_ethnicity = pop_ethnicity.iloc[:, :8]
+pop_ethnicity.rename(columns={"Location": "STATE"}, inplace= True)
+pop_ethnicity = pop_ethnicity[pop_ethnicity['STATE'].isin(us_state_to_abbrev.keys())]
+pop_ethnicity["STATE"] = pop_ethnicity["STATE"].apply(statetoabbr)
+
+crim_ethno = crimeTypePerState.merge(pop_ethnicity,on='STATE', how = 'left')
+crim_ethno.fillna(0, inplace=True)
+crim_ethno.head()
+
+offense_race = crim_ethno.groupby(['OFFENSE'])[['White', 'Black','Hispanic','Asian','American Indian or Alaska Native','Native Hawaiian or Pacific Islander','Multiple Races']].sum()
+offense_race = offense_race/offense_race.sum()
+offense_race.reset_index(inplace=True)
+offense_race = offense_race.melt(id_vars=['OFFENSE'], value_vars=['White', 'Black','Hispanic','Asian','American Indian or Alaska Native','Native Hawaiian or Pacific Islander','Multiple Races'], var_name='Race/Ethnicity', value_name='Percent')
+offense_race
+
+ggplot(offense_race) + geom_pie(aes(slice='Percent', fill='OFFENSE'), stat='identity')+facet_grid(x ='Race/Ethnicity')
+```
+
+Looking at this chart we can see more of what we confirmed above, that Drug Abuse accounts for 58% of their arrests based on the most arrested offenses per state. But we can see more interesting data, like how DUI comprises 49% of Indigenous arrests. These pie charts beg the question of whether you can use race as an identifier for the type of crime arrested. 
+
+```{python}
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn import tree
+
+X = crim_ethno.drop(['OFFENSE','STATE'], axis=1) 
+y = crim_ethno['OFFENSE']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+clf = DecisionTreeClassifier()
+
+clf.fit(X_train, y_train)
+
+y_pred = clf.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_pred)
+accuracy
+
+tree.plot_tree(clf)
+
+print(classification_report(y_test, y_pred))
+
+scores = cross_val_score(clf, X, y, cv=5, scoring='f1_macro')
+print("Cross-validation F1 scores:", scores)
+```
+
+After running a decision tree classifier to classify offenses based on a percentage of the races arrested for those crimes, my model had an accuracy of 0.6, and interestingly the precision for the drug abuse violations was 0.67 which would imply some bias in terms of who is getting arrested for drug-related crimes.
+
 
