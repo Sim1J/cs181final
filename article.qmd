@@ -4,6 +4,7 @@ subtitle: Data Analytics and Visualization, Fall 2024
 author: Otis Golden and Simone Johnson
 institute: Harvey Mudd College
 date: December 9th 2024
+geometry: margin=0.5in
 format: 
   html:
     self-contained: true
@@ -28,6 +29,9 @@ import pandas as pd
 
 LetsPlot.setup_html()
 
+import warnings
+warnings.filterwarnings("ignore")
+
 ```
 
 
@@ -42,7 +46,7 @@ demodata = data[data["AREO"]==1]
 
 ## Marijuana Possession
 
-Racial biases in the US criminal justice system have been documented over the last several decades, and one area that these biases are particularly present are in cannabis possession arrests, often referred to as part of "the War on Drugs". In this section, we wanted to present the FBI's compiled marijuana possession arrest data for the different races included in their breakdown ("White", "Black", "Asian", and "Indian"). 
+Racial biases in the US criminal justice system have been documented over the last several decades, and one area that these biases are particularly present are in cannabis possession arrests, often referred to as part of "the War on Drugs". In this section, we wanted to present the FBI's compiled marijuana possession arrest data for the different races included in their breakdown ("White", "Black", "Asian", and "American Indian/ Native American"). 
 
 
 ```{python}
@@ -71,29 +75,31 @@ observDataCountsWeed["state"] = observDataCountsWeed["STNAME"]
 
 observDataCountsWeed.to_csv("observDataCountsWeed.csv")
 
+# print(observDataCountsWeed["AB"].sum()/observDataCountsWeed["Black Alone"].sum()*100000)
+# print(observDataCountsWeed["AW"].sum()/observDataCountsWeed["White Alone"].sum()*100000)
+
 ```
 
 Below is an interactive side-by-side map of arrests per 100,000 people of the selected demographic. This allows you to see a direct comparison of the rate of arrest between the different reported races.
-
 
 ```{ojs}
 
 viewof demographic1 = Inputs.select(
   new Map([
-    ["Adult Asian", "AA"],
-    ["Adult Black", "AB"],
-    ["Adult White", "AW"],
-    ["Adult Indian", "AI"]
+    ["White", "AW"],
+    ["Asian", "AA"],
+    ["Black", "AB"],
+    [" American Indian / Native American", "AI"]
   ]),
   { label: "Demographic 1" }
 )
 
 viewof demographic2 = Inputs.select(
   new Map([
-    ["Adult Asian", "AA"],
-    ["Adult Black", "AB"],
-    ["Adult White", "AW"],
-    ["Adult Indian", "AI"]
+    ["Black", "AB"],
+    ["Asian", "AA"],
+    ["White", "AW"],
+    [" American Indian / Native American", "AI"]
   ]),
   { label: "Demographic 2" }
 )
@@ -180,15 +186,15 @@ demographicCounts = FileAttachment("observDataCountsWeed.csv").csv()
 ```
 
 
-When looking at this, we see that there is a clear disparity in arrest rates amoung the different races -- particularly between Black people and white people. In some states, Black individuals are arrested for marijuana possession at a rate almost 10 times higher than white individuals, such as in Utah, Idaho, and Wyoming. This supports the claim from before that there is a racial disparity in the arrest rates because the data is normalized to each demographic's population with eaach state, showing arrests per 100,000 individuals within each group.
+When looking at this, we see that there is a clear disparity in arrest rates amoung the different races -- particularly between Black people and white people. In some states, Black individuals are arrested for marijuana possession at a rate almost 10 times higher than white individuals, such as in Utah, Idaho, and Wyoming. Additionally, if we look at the US as a whole, the rate of Black individuals arrested for marijuana possession is 151.1 people arrested per 100,000 individuals, where as for white individuals it is only 35.1 people arrested per 100,000 individuals. This supports the claim from before that there is a racial disparity in the arrest rates because the data is normalized to each demographic's population with each state, showing arrests per 100,000 individuals within each group.
 
 This is an important issue because marijuana possession arrests can have life changing impacts such as causing difficulty finding jobs, losing public health care, or even eviction from public housing. Thus, because there is this disparity in the arrest rates, Black communities face these consequences at a higher rate.
 
 We can see when comparing marijuana possession arrest rates for Black individuals to white individuals that the highest disparities are in states that haven't legalized or decriminalized marijuana. However, another insight we can gain from this is that there is still a disparity present even in states that have legalized and decriminalized marijuana, indicating that in order to fix the racial disparities in arrest rates for marijuana possession, more than just legalization is required.
 
-## CRIME TYPE DISTRIBUTION BY STATE
+## Crime Type Distribution by State
 
-Certain types of crime seem to have had a massive uptick in frequency across the United States. Specifically, it seems that the news reports a lot about rampant drug abuse and DUI charges, especially in the state of Washington. Therefore in this section of the report, we wanted to analyze the most prominent arrest offense per state and determine if there is any visible correlation between that and race demographics per that state.
+Certain types of crime seem to have had a massive uptick in frequency across the United States. Specifically, it seems that the news reports a lot about rampant drug abuse and DUI charges, especially in the state of Washington. Therefore in this section of the report, we wanted to look at the most common arrest offense per state, as well as to determine if there is a correlation between the most common arrest offense and race.
 
 
 ```{python}
@@ -200,7 +206,6 @@ import matplotlib.pyplot as plt
 ```
 
 ```{python}
-data = pd.read_stata('crime_data.dta')
 state_crime = data[['STATE','OFFENSE']]
 state_crime['OFFENSE'] = pd.to_numeric(state_crime['OFFENSE'])
 state_crime['State'] = state_crime["STATE"].astype(str)
@@ -318,6 +323,62 @@ us_state_to_abbrev = {
     "Federal":"FD"
 }
 
+us_num_to_abbrev = {
+    1: "AL",
+    50: "AK",
+    2: "AZ",
+    3: "AR",
+    4: "CA",
+    5: "CO",
+    6: "CT",
+    7: "DE",
+    9: "FL",
+    10: "GA",
+    51: "HI",
+    11: "ID",
+    12: "IL",
+    13: "IN",
+    14: "IA",
+    15: "KS",
+    16: "KY",
+    17: "LA",
+    18: "ME",
+    19: "MD",
+    20: "MA",
+    21: "MI",
+    22: "MN",
+    23: "MS",
+    24: "MO",
+    25: "MT",
+    26: "NE",
+    27: "NV",
+    28: "NH",
+    29: "NJ",
+    30: "NM",
+    31: "NY",
+    32: "NC",
+    33: "ND",
+    34: "OH",
+    35: "OK",
+    36: "OR",
+    37: "PA",
+    38: "RI",
+    39: "SC",
+    40: "SD",
+    41: "TN",
+    42: "TX",
+    43: "UT",
+    44: "VT",
+    45: "VA",
+    46: "WA",
+    47: "WV",
+    48: "WI",
+    49: "WY",
+    8: "DC",
+    55: "AS",
+    98: "GU"
+}
+
 crimeTypePerState = state_crime.groupby(['STATE','OFFENSE']).size().sort_values(ascending = False).reset_index(name = 'max')
 crimeTypePerState = crimeTypePerState[crimeTypePerState["OFFENSE"] != 260]
 maxcrimeperstate = crimeTypePerState.groupby('STATE')['max'].idxmax().reset_index(name = "max")
@@ -326,11 +387,21 @@ crimeTypePerState = crimeTypePerState.loc[maxcrimeperstate['max']]
 def codetoname(code):
     return offense_code_to_name[code]
 
+def numtoabbr(state):
+  try:
+    return  us_num_to_abbrev[state]
+  except:
+    print(str(state)) 
+
 def statetoabbr(state):
+  try:
     return  us_state_to_abbrev[state]
+  except:
+    print(str(state)) 
+
 
 crimeTypePerState['OFFENSE'] = crimeTypePerState['OFFENSE'].apply(codetoname)
-crimeTypePerState['STATE'] = crimeTypePerState["STATE"].apply(statetoabbr)
+crimeTypePerState['STATE'] = crimeTypePerState["STATE"].apply(numtoabbr)
 
 crimeTypePerState.drop(crimeTypePerState.tail().index,inplace=True)
 
@@ -430,9 +501,10 @@ for group, size in zip(list(crimeTypePerState["OFFENSE"].unique()), GROUPS_SIZE)
     offset += size + PAD
 ```
 
-This visual immediately begs many questions and affirms a lot of the testaments across the US about DUI and drug abuse offenses. We can see that the major categories of offenses are DUI, Assault, Drug Abuse, Disorderly Conduct, and Vandalism. So the ones discussed before are that there is undisputedly a problem with DUI and Drug abuse in the United States. There is an interesting outlier here in both Wisconsin and Washington DC. My speculation about Washington DC is that since this data was collected in 2021, the most arrested offense being vandalism most likely has some connection to the Jan 6th Riots. Especially since the number of arrests is visibly negligible. We see an odd spike in drug abuse violations in Texas, which I initially thought was due to its high population; however, we don't see a similar quantity for California, which is the most populated state in America.
+This visual confirms some of the hypotheses that we had about DUI and drug abuse offenses in the US being common, as we can see that the major categories of offenses are DUI, Assault, Drug Abuse, and Disorderly Conduct. Additionally, there is an interesting outlier here in both Wisconsin where it is the only state with the most common offense being disorderly conduct. One side remark about this visualization is that some of the states that have less data have multiple crime offenses that have similar counts, for example Washington DC has similar counts of disorderly conduct, vandalism, and assault. We believe that this is because of the smaller population in DC and the smaller number of arrests, but this is an area that could be further investigated in the future. 
 
-Furthermore, I would like to look at race distributions and the crime that they are arrested for, to see if we can connect race and the crime most likely to be arrested for, in hopes of examining some institutional bias.
+Furthermore, we want to look at race distributions and the crime that they are arrested for. If there is a strong correlation between race and a certain type of crime, this may indicate some institutional bias.
+
 
 ```{python}
 pop_ethnicity = pd.read_csv('raw_data.csv')
@@ -444,7 +516,6 @@ pop_ethnicity["STATE"] = pop_ethnicity["STATE"].apply(statetoabbr)
 
 crim_ethno = crimeTypePerState.merge(pop_ethnicity,on='STATE', how = 'left')
 crim_ethno.fillna(0, inplace=True)
-crim_ethno.head()
 
 offense_race = crim_ethno.groupby(['OFFENSE'])[['White', 'Black','Hispanic','Asian','American Indian or Alaska Native','Native Hawaiian or Pacific Islander','Multiple Races']].sum()
 offense_race = offense_race/offense_race.sum()
@@ -452,10 +523,12 @@ offense_race.reset_index(inplace=True)
 offense_race = offense_race.melt(id_vars=['OFFENSE'], value_vars=['White', 'Black','Hispanic','Asian','American Indian or Alaska Native','Native Hawaiian or Pacific Islander','Multiple Races'], var_name='Race/Ethnicity', value_name='Percent')
 offense_race
 
-ggplot(offense_race) + geom_pie(aes(slice='Percent', fill='OFFENSE'), stat='identity')+facet_grid(x ='Race/Ethnicity')
+ggplot(offense_race) + geom_pie(aes(slice='Percent', fill='OFFENSE'), stat='identity', size=5)+facet_grid(x ='Race/Ethnicity', x_labwidth=10) + ggsize(1400,300) + theme(legend_key_size=0.5)
 ```
 
-Looking at this chart we can see more of what we confirmed above, that Drug Abuse accounts for 58% of their arrests based on the most arrested offenses per state. But we can see more interesting data, like how DUI comprises 49% of Indigenous arrests. These pie charts beg the question of whether you can use race as an identifier for the type of crime arrested. 
+Looking at this chart, we are able to see more evidence of a potential racial bias in drug arrests as Drug Abuse accounts for 53.8% of Black arrests based on the most arrested offenses per state, which we can see is higher than for any other racial group. But there are more interesting trends that we can see in this chart, like how DUI comprises 49% of Indigenous arrests. Overall, what this set of charts displays is that there is a visual difference in the proportions of offenses that each race is arrested for.
+
+Based on these pie charts, we wondered if you can use race as an identifier for the type of crime arrested. Thus, we tried using a decision tree classifier on this data, which is a learning algorithm that is used for predictive modeling. The output below shows how well this classifier is able to predict the offense type based on the race of a given arrest.
 
 ```{python}
 from sklearn.tree import DecisionTreeClassifier
@@ -484,6 +557,8 @@ scores = cross_val_score(clf, X, y, cv=5, scoring='f1_macro')
 print("Cross-validation F1 scores:", scores)
 ```
 
-After running a decision tree classifier to classify offenses based on a percentage of the races arrested for those crimes, my model had an accuracy of 0.6, and interestingly the precision for the drug abuse violations was 0.67 which would imply some bias in terms of who is getting arrested for drug-related crimes.
+In one of the runs of a decision tree classifier to classify offenses based on a percentage of the races arrested for those crimes, my model had an accuracy of 0.6, and interestingly the precision for the drug abuse violations was 0.67 which would imply some bias in terms of who is getting arrested for drug-related crimes.
 
+## Conclusion
 
+Through all of our visualizations and analysis, we have shown that there is a correlation between race and the offence for which an individual is arrested for. This indicates that there may be a systematic or institutional bias for these offenses, especially drug-related crimes. In specific, we found that there is a visual difference in the most common offenses when separated by race and that there may be some bias in the populations that are getting arrested for drug-related crimes through using a decision tree classifier. Finally, we looked specifically at marijuana possession charges and found that there is a clear disparity in arrest rates amoung the different races and that this disparity persists even in states that have legalized marijuana. We think that more analysis could be done in the future with this dataset, particularly investigating deeper into specific charges related to drug abuse across racial groups over time. In particular, we think that a visualization and analysis that included a time aspect could be interesting for marijuana possession charges could be interesting because it would allow us to see the impact of when each state legalizes marijuana.
